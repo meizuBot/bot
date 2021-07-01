@@ -4,7 +4,7 @@ import discord
 from discord import ui
 from discord.ext import commands
 
-from .. import core
+import core
 from utils import decos
 from utils.buttons import menus
 
