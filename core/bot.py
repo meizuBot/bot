@@ -10,7 +10,6 @@ from aiohttp import ClientSession
 from discord.ext import commands
 
 import config
-from web import ipc
 
 log = logging.getLogger("bot")
 logging.basicConfig(level=logging.INFO)
@@ -70,9 +69,6 @@ class CustomBot(commands.Bot):
         self.random = SystemRandom()
         self.extra = Extra()
         self.start_time = None
-
-        self.ipc = ipc.Server(self)
-        self.ipc.start()
 
         self.context = commands.Context
 
