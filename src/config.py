@@ -14,7 +14,7 @@ __all__ = (
 )
 
 token = getenv("TOKEN")
-prefix = getenv["PREFIX"]
+prefix = getenv("PREFIX")
 postgres_uri = getenv("POSTGRES_URI")
 
 osu = NamedTuple("Osu", [("client_id", int), ("client_secret", int)])(
