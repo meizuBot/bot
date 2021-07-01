@@ -1,6 +1,3 @@
-import sys
-print([i for i in sys.modules if "src" in i or "core" in i])
-print(sys.path)
 import asyncio
 import os
 import logging
