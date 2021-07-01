@@ -31,7 +31,7 @@ async def cool(bot):
 
 
 def get_prefix(bot: "CustomBot", message: discord.Message) -> Union[List[str], str]:
-    return commands.when_mentioned_or(*config.prefix)(bot, message)
+    return commands.when_mentioned_or(config.prefix)(bot, message)
 
 
 class Extra:

@@ -1,6 +1,6 @@
 from typing import NamedTuple
 
-from yaml import safe_load
+from os import getenv
 
 __all__ = (
     "token",
@@ -13,22 +13,15 @@ __all__ = (
     "perspective_key",
 )
 
-with open("config.yml") as f:
-    _config = safe_load(f)
-
-token = _config["token"]
-prefix = _config["prefix"]
-postgres_uri = _config["postgres_uri"]
-
-_keys = _config["keys"]
+token = getenv("TOKEN")
+prefix = getenv["PREFIX"]
+postgres_uri = getenv("POSTGRES_URI")
 
 osu = NamedTuple("Osu", [("client_id", int), ("client_secret", int)])(
-    _keys["osu"]["client_id"], _keys["osu"]["client_secret"]
+    getenv("OSU_CLIENT_ID"), getenv("OSU_CLIENT_SECRET")
 )
-twitter_bearer_token = _keys["twitter_bearer_token"]
+twitter_bearer_token = None
 
-finnhub_key = _keys["finnhub_key"]
-nasa_key = _keys["nasa_key"]
-perspective_key = _keys["perspective_key"]
-
-del _config, _keys
+finnhub_key = getenv("FINNHUB_KEY")
+nasa_key = getenv("NASA_KEY")
+perspective_key = getenv("PERSPECTIVE_KEY")
