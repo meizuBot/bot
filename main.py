@@ -7,8 +7,8 @@ from traceback import format_exc
 import click
 from asyncpg import Pool, create_pool
 
-import db
-from bot.core import CustomBot
+from utils import db
+from core import CustomBot
 from config import postgres_uri, token
 
 

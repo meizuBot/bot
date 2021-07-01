@@ -5,7 +5,7 @@ from datetime import datetime as dt, timezone
 from dateutil.relativedelta import relativedelta
 from discord.ext import commands
 
-from bot import core
+import core
 from .formats import human_join, plural
 
 __all__ = ("parse_time", "human_timedelta", "Timer")
