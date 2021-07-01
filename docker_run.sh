@@ -1,1 +1,0 @@
-exec python /badbot/src/main.py
