@@ -1,0 +1,16 @@
+token: ""
+postgres_uri: ""
+
+prefix:
+  -  "$"
+  
+status: "dnd"
+
+keys:
+    osu:
+        client_id: ""
+        client_secret: ""
+    twitter_bearer_token: ""
+    finnhub_key: ""
+    nasa_key: ""
+    perspective_key: ""
