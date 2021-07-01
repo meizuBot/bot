@@ -2,6 +2,7 @@ aiohttp
 asyncpg
 click
 discord.py @ git+https://github.com/rapptz/discord.py@master
+web @ git+https://github.com/reallybadbot/website@main
 psutil
 python-dateutil
 pyyaml
