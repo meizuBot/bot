@@ -7,7 +7,7 @@ from discord import ButtonStyle, Embed, Interaction, ui
 from discord.ext import commands
 from humanize import precisedelta
 
-from .. import core
+import core
 from config import osu
 from utils import MENTION_REGEX
 from utils.buttons import StopButton

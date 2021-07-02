@@ -4,7 +4,7 @@ from typing import Tuple
 import discord
 from discord.ext import commands
 
-from .. import core
+import core
 
 __all__ = ("setup",)
 

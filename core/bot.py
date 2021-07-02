@@ -10,6 +10,7 @@ from aiohttp import ClientSession
 from discord.ext import commands
 
 import config
+from web import ipc
 
 log = logging.getLogger("bot")
 logging.basicConfig(level=logging.INFO)

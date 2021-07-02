@@ -7,7 +7,7 @@ import discord
 from discord import utils
 from discord.ext import commands
 
-from .. import core
+import core
 from utils.formats import plural
 from utils.time import parse_time, utcnow
 

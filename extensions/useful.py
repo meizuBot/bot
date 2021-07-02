@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord.http import Route
 
-from .. import core
+import core
 from utils import checks
 
 __all__ = ("setup",)

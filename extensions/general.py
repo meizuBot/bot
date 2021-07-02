@@ -4,7 +4,7 @@ from pathlib import Path
 import discord
 from discord.ext import commands
 
-from .. import core
+import core
 from utils import codeblock
 
 __all__ = ("setup",)
