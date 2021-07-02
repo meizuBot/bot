@@ -3,7 +3,6 @@ import ast
 import contextlib
 import inspect
 import io
-import textwrap
 import traceback
 
 import asyncpg
@@ -14,7 +13,7 @@ from jishaku.codeblocks import codeblock_converter
 from jishaku.paginators import PaginatorInterface, WrappedPaginator
 from tabulate import tabulate
 
-from .. import core
+import core
 from utils import codeblock
 from utils.time import Timer
 
