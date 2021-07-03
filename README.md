@@ -31,8 +31,7 @@ $ source ./venv/Scripts/activate
 in venv:
 ```shell
 $ python3.9 -m pip install -U -r requirements.txt
-$ cd web
-$ python3.9 -m pip install -U -r requirements.txt
+$ python3.9 -m pip install -U -r ./web/requirements.txt
 ```
 oh and if yur on linux:
 ```shell
