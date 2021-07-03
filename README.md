@@ -8,7 +8,8 @@ $ cd bot
 if you forget the `--recurse submodules` then do 
 ```shell
 $ git submodule init
-``` 
+$ git submodule update
+```
 and you should be all good
 
 # setup:
