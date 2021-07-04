@@ -10,25 +10,11 @@ from aiohttp import ClientSession
 from discord.ext import commands
 
 import config
-from web import ipc
 
 log = logging.getLogger("bot")
 logging.basicConfig(level=logging.INFO)
 
 __all__ = ("CustomBot",)
-
-
-@ipc.route(name="test")
-async def test(text):
-    return "this is a cool thing: {}".format(text)
-
-
-@ipc.route(name="stats")
-async def cool(bot):
-    return {
-        "users": format(sum(1 for i in bot.users if not i.bot), ","),
-        "guilds": format(len(bot.guilds), ","),
-    }
 
 
 def get_prefix(bot: "CustomBot", message: discord.Message) -> Union[List[str], str]:
