@@ -6,7 +6,7 @@ from utils.time import utcnow
 from config import gist
 import logging
 
-log = logging.getLogger(__file__)
+log = logging.getLogger(__name__)
 
 class BackendAPI(commands.Cog):
     def __init__(self, bot: core.CustomBot):
@@ -19,7 +19,7 @@ class BackendAPI(commands.Cog):
 
     @tasks.loop(minutes=30)
     async def gist_update(self):
-        content = json.dumps(await self.generate_data())
+        content = json.dumps(await self.generate_data(), indent=4)
         description = f"Last updated at {utcnow()}"
         data = {
             "description": description,
@@ -37,8 +37,38 @@ class BackendAPI(commands.Cog):
     async def wait(self):
         await self.bot.wait_until_ready()
 
-    def generate_subcommands(command: core.Group):
-        ...
+    def generate_command_data(self, command: core.Command) -> dict:
+        data = {
+            "aliases": command.aliases,
+            "description": command.description,
+            "signature": command.signature,
+            "parent_name": command.full_parent_name,
+            # extra stuff here
+            "cooldown": getattr(command, "cooldown", None),
+            "returns": getattr(command, "returns", None),
+            "params": getattr(command, "params_", None),
+
+            "subcommands": self.generate_subcommands(command)
+        }
+        examples = getattr(command, "examples", None)
+        if examples:
+            if examples[0] is not None:
+                data["examples"] = examples
+            else:
+                data["examples"] = []
+        return data
+
+    def generate_subcommands(self, command: core.Group):
+        if not isinstance(command, commands.Group):
+            return {}
+        if command.commands == set():
+            return {}
+        data = {}
+        for cmd in command.commands:
+            data[cmd.name] = self.generate_command_data(cmd)
+
+        return data
+        
 
     async def generate_data(self) -> dict:
         bot = self.bot
@@ -52,7 +82,7 @@ class BackendAPI(commands.Cog):
                 "voice_channels": 0,
             },
             "socket": dict(await self.bot.pool.fetch("SELECT * FROM stats.socket")),
-            "commands": {}
+            "cogs": {},
         }
         for guild in bot.guilds:
             data["stats"]["guilds"] +=1
@@ -65,6 +95,17 @@ class BackendAPI(commands.Cog):
                     data["stats"]["text_channels"] += 1
                 elif isinstance(channel, discord.VoiceChannel):
                     data["stats"]["voice_channels"] += 1
+
+        for cog_name, cog in bot.cogs.items():
+            if getattr(cog, "emoji", None) is None:
+                continue
+            cdata = {
+                "description": cog.description,
+                "commands": {}
+            }
+            for command in cog.get_commands():
+                cdata["commands"][command.name] = self.generate_command_data(command)
+            data["cogs"][cog_name] = cdata
 
         return data
 

@@ -62,8 +62,6 @@ class CustomBot(commands.Bot):
             loop=loop,
         )
 
-        self._BotBase__cogs = commands.core._CaseInsensitiveDict()
-
         self.loop.create_task(self.__prep())
         self.prepped = Event()
 
