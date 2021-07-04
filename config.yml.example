@@ -10,6 +10,9 @@ keys:
     osu:
         client_id: ""
         client_secret: ""
+    gist:
+        id: ""
+        token: ""
     twitter_bearer_token: ""
     finnhub_key: ""
     nasa_key: ""
