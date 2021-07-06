@@ -18,24 +18,25 @@ class Command(CommandMixin, commands.Command):
 
 
 class Group(Command, commands.Group):
-    def group(self, *args, **kwargs):
-        def decorator(func):
-            kwargs.setdefault("parent", self)
-            kwargs.setdefault("cls", self)
-            result = group(*args, **kwargs)(func)
-            self.add_command(result)
-            return result
-
-        return decorator
-
     def command(self, *args, **kwargs):
-        def decorator(func):
-            kwargs.setdefault("parent", self)
+
+        def wrapper(func):
+            kwargs.setdefault('parent', self)
             result = command(*args, **kwargs)(func)
             self.add_command(result)
             return result
 
-        return decorator
+        return wrapper
+
+    def group(self, *args, **kwargs):
+
+        def wrapper(func):
+            kwargs.setdefault('parent', self)
+            result = group(*args, **kwargs)(func)
+            self.add_command(result)
+            return result
+
+        return wrapper
 
 
 def command(name=None, cls=None, **attrs):

@@ -39,6 +39,7 @@ class BackendAPI(commands.Cog):
 
     def generate_command_data(self, command: core.Command) -> dict:
         data = {
+            "name": command.name,
             "aliases": command.aliases,
             "description": command.description,
             "signature": command.signature,
@@ -108,6 +109,7 @@ class BackendAPI(commands.Cog):
             data["cogs"][cog_name] = cdata
 
         return data
+
 
     
 def setup(bot: core.CustomBot):
