@@ -1,3 +1,4 @@
+from typing import Dict, Union
 from discord.ext import commands, tasks
 import core
 import discord
@@ -5,39 +6,91 @@ import json
 from utils.time import utcnow
 from config import gist
 import logging
+from aiohttp import web
 
 log = logging.getLogger(__name__)
 
-class BackendAPI(commands.Cog):
-    def __init__(self, bot: core.CustomBot):
+class APIHandler:
+    def __init__(self, bot: core.CustomBot) -> None:
         self.bot = bot
-        self.headers = {"Authorization": f"token {gist.token}", "User-Agent": "ppotatoo", "Accept": "application/vnd.github.v3+json"}
-        self.gist_update.start()
+        self.json = JSONHandler(self.bot)
 
-    def cog_unload(self):
-        self.gist_update.stop()
+        self.app = web.Application()
+        self.runner = web.AppRunner(self.app, access_log=log)
+        self.site = None
+        self.bot.loop.create_task(self.run())
 
-    @tasks.loop(minutes=30)
-    async def gist_update(self):
-        content = json.dumps(await self.generate_data(), indent=4)
-        description = f"Last updated at {utcnow()}"
+    def generate_routes(self) -> tuple:
+        prefix = "/api"
+        return (
+            web.get(f"{prefix}/all", handler=self.all),
+            web.get(f"{prefix}/command/{{command}}", handler=self.command),
+            web.get(f"{prefix}/stats", handler=self.stats),
+            web.get(f"{prefix}/socket", handler=self.socket),
+            web.get(f"{prefix}/cogs", handler=self.cogs),
+        )
+
+    async def all(self, request):
+        return web.json_response(await self.generate_all())
+
+    async def command(self, request):
+        command = self.bot.get_command(request.match_info["command"])
+        if command is None:
+            return web.json_response({"message": "Command not found", "code": 404}, status=404)
+        return web.json_response(self.json.generate_command(command))
+
+    async def socket(self, request):
+        return web.json_response(await self.json.generate_socket())
+
+    async def stats(self, request):
+        return web.json_response(await self.json.generate_stats())
+
+    async def cogs(self, request):
+        return web.json_response(self.json.generate_cogs())
+
+    async def run(self):
+        self.app.add_routes(self.generate_routes())
+
+        await self.runner.setup()
+        self.site = web.TCPSite(self.runner, "localhost", 8080)
+        await self.site.start()
+
+        log.info("Backend JSON API started up.")
+
+
+
+class JSONHandler:
+    def __init__(self, bot: core.CustomBot) -> None:
+        self.bot = bot
+
+    async def generate_stats(self) -> Dict[str, int]:
         data = {
-            "description": description,
-            "files": {
-                "data.json": {
-                    "content": content
-                }
-            }
+            "guilds": 0,
+            "unique_users": len(self.bot.users),
+            "total_members": 0,
+            "total_commands": len(tuple(i for i in self.bot.walk_commands() if i.cog is not None and not i.cog.qualified_name == "Jishaku")),
+            "total_commands_run": await self.bot.pool.fetchval("SELECT COUNT(*) FROM stats.commands"),
+            "text_channels": 0,
+            "voice_channels": 0
         }
-        url = "https://api.github.com/gists/" + gist.id
-        async with self.bot.session.patch(url, json=data, headers=self.headers) as resp:
-            log.info("Posted stats to gist.")
+        for guild in self.bot.guilds:
+            data["guilds"] +=1
+            if guild.unavailable:
+                continue
+            
+            data["total_members"] += guild.member_count
+            for channel in guild.channels:
+                if isinstance(channel, discord.TextChannel):
+                    data["text_channels"] += 1
+                elif isinstance(channel, discord.VoiceChannel):
+                    data["voice_channels"] += 1
 
-    @gist_update.before_loop
-    async def wait(self):
-        await self.bot.wait_until_ready()
+        return data
 
-    def generate_command_data(self, command: core.Command) -> dict:
+    async def generate_socket(self) -> Dict[str, int]:
+        return dict(await self.bot.pool.fetch("SELECT * FROM stats.socket"))
+
+    def generate_command(self, command: commands.Command) -> dict:
         data = {
             "name": command.name,
             "aliases": command.aliases,
@@ -59,45 +112,20 @@ class BackendAPI(commands.Cog):
                 data["examples"] = []
         return data
 
-    def generate_subcommands(self, command: core.Group):
+    def generate_subcommands(self, command: Union):
         if not isinstance(command, commands.Group):
             return {}
         if command.commands == set():
             return {}
         data = {}
         for cmd in command.commands:
-            data[cmd.name] = self.generate_command_data(cmd)
+            data[cmd.name] = self.generate_command(cmd)
 
         return data
-        
 
-    async def generate_data(self) -> dict:
-        bot = self.bot
-        data = {
-            "stats": {
-                "guilds": 0,
-                "members": 0,
-                "total_commands": len(tuple(bot.walk_commands())),
-                "total_commands_run": await self.bot.pool.fetchval("SELECT COUNT(*) FROM stats.commands"),
-                "text_channels": 0,
-                "voice_channels": 0,
-            },
-            "socket": dict(await self.bot.pool.fetch("SELECT * FROM stats.socket")),
-            "cogs": {},
-        }
-        for guild in bot.guilds:
-            data["stats"]["guilds"] +=1
-            if guild.unavailable:
-                continue
-            
-            data["stats"]["members"] += guild.member_count
-            for channel in guild.channels:
-                if isinstance(channel, discord.TextChannel):
-                    data["stats"]["text_channels"] += 1
-                elif isinstance(channel, discord.VoiceChannel):
-                    data["stats"]["voice_channels"] += 1
-
-        for cog_name, cog in bot.cogs.items():
+    def generate_cogs(self):
+        data = {}
+        for cog_name, cog in self.bot.cogs.items():
             if getattr(cog, "emoji", None) is None:
                 continue
             cdata = {
@@ -105,11 +133,49 @@ class BackendAPI(commands.Cog):
                 "commands": {}
             }
             for command in cog.get_commands():
-                cdata["commands"][command.name] = self.generate_command_data(command)
-            data["cogs"][cog_name] = cdata
+                cdata["commands"][command.name] = self.generate_command(command)
+            data[cog_name] = cdata
 
         return data
 
+    async def generate_all(self):
+        return {
+            "stats": await self.generate_stats(),
+            "socket": await self.generate_socket(),
+            "cogs": self.generate_cogs()
+        }
+
+
+class BackendAPI(commands.Cog):
+    def __init__(self, bot: core.CustomBot):
+        self.bot = bot
+        self.headers = {"Authorization": f"token {gist.token}", "User-Agent": "ppotatoo", "Accept": "application/vnd.github.v3+json"}
+        self.gist_update.start()
+
+        self.api = APIHandler(self.bot)
+
+    def cog_unload(self):
+        self.gist_update.stop()
+
+    @tasks.loop(minutes=30)
+    async def gist_update(self):
+        content = json.dumps(await self.api.json.generate_all(), indent=4)
+        description = f"Last updated at {utcnow()}"
+        data = {
+            "description": description,
+            "files": {
+                "data.json": {
+                    "content": content
+                }
+            }
+        }
+        url = "https://api.github.com/gists/" + gist.id
+        async with self.bot.session.patch(url, json=data, headers=self.headers) as resp:
+            log.info("Posted stats to gist.")
+
+    @gist_update.before_loop
+    async def wait(self):
+        await self.bot.wait_until_ready()
 
     
 def setup(bot: core.CustomBot):
