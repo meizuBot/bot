@@ -31,7 +31,7 @@ class APIHandler:
         )
 
     async def all(self, request):
-        return web.json_response(await self.generate_all())
+        return web.json_response(await self.json.generate_all())
 
     async def command(self, request):
         command = self.bot.get_command(request.match_info["command"])
