@@ -34,7 +34,7 @@ class Interactions(commands.Cog):
             title=self.bot.random.choice(globals()[method + "_messages"]).format(user=user.display_name)
         )
 
-        path = "./src/assets/" + method
+        path = "./assets/" + method
         fn = self.bot.random.choice(listdir(path))
         file = discord.File(path + "/" + fn, filename=fn)
         embed.set_image(url="attachment://" + fn)
