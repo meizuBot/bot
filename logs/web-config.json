@@ -1,0 +1,59 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "default": {
+            "()": "uvicorn.logging.DefaultFormatter",
+            "fmt": "%(levelprefix)s %(message)s",
+            "use_colors": false
+        },
+        "access": {
+            "()": "uvicorn.logging.AccessFormatter",
+            "fmt": "%(levelprefix)s %(client_addr)s - \"%(request_line)s\" %(status_code)s"
+        },
+        "access-file": {
+            "()": "uvicorn.logging.AccessFormatter",
+            "fmt": "{asctime} - {levelprefix} {client_addr} - \"{request_line}\" {status_code}",
+            "style": "{"
+        },
+        "default-file": {
+            "()": "uvicorn.logging.DefaultFormatter",
+            "fmt": "{asctime} - {levelprefix} {message}",
+            "style": "{",
+            "use_colors": false
+        }
+    },
+    "handlers": {
+        "default": {
+            "formatter": "default",
+            "class": "logging.StreamHandler",
+            "stream": "ext://sys.stderr"
+        },
+        "access": {
+            "formatter": "access",
+            "class": "logging.StreamHandler",
+            "stream": "ext://sys.stdout"
+        },
+        "default-file": {
+            "formatter": "default-file",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "logs/uvicorn-default.log",
+            "encoding": "utf-8",
+            "maxBytes": 1024,
+            "backupCount": 3
+        },
+        "access-file": {
+            "formatter": "access-file",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "logs/uvicorn-access.log",
+            "encoding": "utf-8",
+            "maxBytes": 1024,
+            "backupCount": 3
+        }
+    },
+    "loggers": {
+        "uvicorn": {"handlers": ["default", "default-file"], "level": "DEBUG"},
+        "uvicorn.error": {"level": "INFO"},
+        "uvicorn.access": {"handlers": ["access", "access-file"], "level": "INFO", "propagate": false}
+    }
+}

@@ -1,3 +1,4 @@
+import logging
 from os import listdir
 from typing import Tuple
 
@@ -8,20 +9,10 @@ import core
 
 __all__ = ("setup",)
 
-bonk_messages = (
-    "*bonks {user} on the nose lol*",
-    "*sneaks behind {user} and bonks them!*",
-    "*crawls under the table and gives a boop to {user}!*",
-)
-bonk_fmt = "You've bonked {user} {amount} times! They've been bonked a total of {total} times."
+log = logging.getLogger(__name__)
 
-bite_messages = ("*bites {user}*",)
-bite_fmt = "You've bitten {user} {amount} times! They've been bitten a total of {total} times."
 
-cuddle_messages = ("*you and {user} share a nice cuddle*",)
-cuddle_fmt = (
-    "You've cuddled with {user} {amount} times, and they've been cuddled with a total of {total} times"
-)
+fmt = "You've {plural} {user} {amount + 1} times! They've been {plural} a total of {total + 1} times."
 
 
 class Interactions(commands.Cog):
@@ -29,17 +20,24 @@ class Interactions(commands.Cog):
         self.bot = bot
         self.emoji = "<:mitsuri_pleading:853237551262466108>"
 
-    def construct_embed(self, method: str, _, user: discord.User) -> Tuple[discord.File, discord.Embed]:
-        embed = self.bot.embed(
-            title=self.bot.random.choice(globals()[method + "_messages"]).format(user=user.display_name)
-        )
+    async def construct_embed(self, method: str, plural: str, initiator: discord.Member, receiver: discord.User) -> discord.Embed:
+        embed = self.bot.embed()
 
-        path = "./assets/" + method
-        fn = self.bot.random.choice(listdir(path))
-        file = discord.File(path + "/" + fn, filename=fn)
-        embed.set_image(url="attachment://" + fn)
+        url = "https://api.waifu.pics/sfw/" + method
+        async with self.bot.session.get(url) as resp:
+            if resp.ok:
+                data = await resp.json()
+                if url := data.get("url") is not None:
+                    embed.set_image(url=url)
 
-        return file, embed
+            if embed.image is None:
+                log.warning(f"Embed image failed to load. Method: {method}, Code: {resp.status}")
+                embed.description = "Oops, something went wrong."
+
+
+        embed.set_footer(fmt.format_map(await self.get_totals(method, initiator, receiver)))
+
+        return embed
 
     async def get_totals(self, method: str, initiator: discord.User, receiver: discord.User) -> dict:
         query = """
@@ -69,11 +67,19 @@ class Interactions(commands.Cog):
             """
         await self.bot.pool.execute(query, method, initiator.id, receiver.id)
 
-    def invoke_check(self, verb: str, initiator: discord.User, receiver: discord.User):
+    def invoke_check(self, verb: str, plural: str, initiator: discord.User, receiver: discord.User):
         if initiator == receiver:
             raise commands.BadArgument(f"You can't {verb} yourself!")
         if receiver.bot is True and receiver.id != self.bot.user.id:
-            raise commands.BadArgument(f"You can't {verb} a bot! They don't like it!")
+            raise commands.BadArgument(f"Bots can't be {plural}!")
+
+    async def run_interaction(self, ctx: core.Context, verb: str, plural: str, initiator: discord.Member, receiver: discord.User):
+        self.invoke_check(verb, plural, initiator, receiver)
+
+        await ctx.send(embed=await self.construct_embed())
+
+        await self.update(verb, initiator, receiver)
+
 
     @core.command(
         examples=("@ppotatoo",),
@@ -84,12 +90,7 @@ class Interactions(commands.Cog):
         """Bonk!
         You can view how many times you have bonked the user, and how many times they have been bonked in total.
         """
-        values = ("bonk", ctx.author, user)
-        self.invoke_check(*values)
-        await self.update(*values)
-        file, embed = self.construct_embed(*values)
-        embed.set_footer(text=bonk_fmt.format_map(await self.get_totals(*values)))
-        await ctx.send(embed=embed, file=file)
+        await self.run_interaction(ctx, "bonk", "bonked", ctx.author, user)
 
     @core.command(
         examples=("@ppotatoo",),
@@ -100,12 +101,7 @@ class Interactions(commands.Cog):
         """A command that lets you bite another user!
         You can view how many times you've bitten this user, and how many times they've been bitten
         """
-        values = ("bite", ctx.author, user)
-        self.invoke_check(*values)
-        await self.update(*values)
-        file, embed = self.construct_embed(*values)
-        embed.set_footer(text=bite_fmt.format_map(await self.get_totals(*values)))
-        await ctx.send(embed=embed, file=file)
+        await self.run_interaction(ctx, "bite", "bitten", ctx.author, user)
 
     @core.command(
         examples=("@ppotatoo",),
@@ -116,12 +112,7 @@ class Interactions(commands.Cog):
         """A command to hug a user.
         You can view how many times you have cuddled this user, and how many times they have been cuddled with.
         """
-        values = ("cuddle", ctx.author, user)
-        self.invoke_check(*values)
-        await self.update(*values)
-        file, embed = self.construct_embed(*values)
-        embed.set_footer(text=cuddle_fmt.format_map(await self.get_totals(*values)))
-        await ctx.send(embed=embed, file=file)
+        await self.run_interaction(ctx, "cuddle", "cuddled", ctx.author, user)
 
 
 def setup(bot):
