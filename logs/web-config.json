@@ -9,12 +9,14 @@
         },
         "access": {
             "()": "uvicorn.logging.AccessFormatter",
-            "fmt": "%(levelprefix)s %(client_addr)s - \"%(request_line)s\" %(status_code)s"
+            "fmt": "%(levelprefix)s %(client_addr)s - \"%(request_line)s\" %(status_code)s",
+            "use_colors": false
         },
         "access-file": {
             "()": "uvicorn.logging.AccessFormatter",
             "fmt": "{asctime} - {levelprefix} {client_addr} - \"{request_line}\" {status_code}",
-            "style": "{"
+            "style": "{",
+            "use_colors": false
         },
         "default-file": {
             "()": "uvicorn.logging.DefaultFormatter",
@@ -36,19 +38,14 @@
         },
         "default-file": {
             "formatter": "default-file",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": "logs/uvicorn-default.log",
-            "encoding": "utf-8",
-            "maxBytes": 1024,
-            "backupCount": 3
+            "class": "logging.FileHandler",
+            "filename": "logs/uvicorn-default.log"
         },
         "access-file": {
             "formatter": "access-file",
-            "class": "logging.handlers.RotatingFileHandler",
+            "class": "logging.FileHandler",
             "filename": "logs/uvicorn-access.log",
-            "encoding": "utf-8",
-            "maxBytes": 1024,
-            "backupCount": 3
+            "encoding": "utf-8"
         }
     },
     "loggers": {

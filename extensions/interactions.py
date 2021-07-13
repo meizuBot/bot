@@ -73,7 +73,7 @@ class Interactions(commands.Cog):
         if receiver.bot is True and receiver.id != self.bot.user.id:
             raise commands.BadArgument(f"Bots can't be {plural}!")
 
-    async def run_interaction(self, ctx: core.Context, verb: str, plural: str, initiator: discord.Member, receiver: discord.User):
+    async def run_interaction(self, ctx: core.CustomContext, verb: str, plural: str, initiator: discord.Member, receiver: discord.User):
         self.invoke_check(verb, plural, initiator, receiver)
 
         await ctx.send(embed=await self.construct_embed())
