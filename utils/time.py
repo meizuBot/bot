@@ -7,18 +7,20 @@ from discord.ext import commands
 
 import core
 from .formats import human_join, plural
+import pendulum
+from contextlib import suppress
 
 __all__ = ("parse_time", "human_timedelta", "Timer")
 
-TIME_REGEX = re.compile(
-    """(?:(?P<years>[0-9])(?:years?|y))?             # e.g. 2y
-                             (?:(?P<months>[0-9]{1,2})(?:months?|mo))?     # e.g. 2months
-                             (?:(?P<weeks>[0-9]{1,4})(?:weeks?|w))?        # e.g. 10w
-                             (?:(?P<days>[0-9]{1,5})(?:days?|d))?          # e.g. 14d
-                             (?:(?P<hours>[0-9]{1,5})(?:hours?|h))?        # e.g. 12h
-                             (?:(?P<minutes>[0-9]{1,5})(?:minutes?|m))?    # e.g. 10m
-                             (?:(?P<seconds>[0-9]{1,5})(?:seconds?|s))?    # e.g. 15s
-                          """,
+TIME_REGEX = re.compile("""
+                    (?:(?P<years>[0-9])(?:years?|y))?             # e.g. 2y
+                    (?:(?P<months>[0-9]{1,2})(?:months?|mo))?     # e.g. 2months
+                    (?:(?P<weeks>[0-9]{1,4})(?:weeks?|w))?        # e.g. 10w
+                    (?:(?P<days>[0-9]{1,5})(?:days?|d))?          # e.g. 14d
+                    (?:(?P<hours>[0-9]{1,5})(?:hours?|h))?        # e.g. 12h
+                    (?:(?P<minutes>[0-9]{1,5})(?:minutes?|m))?    # e.g. 10m
+                    (?:(?P<seconds>[0-9]{1,5})(?:seconds?|s))?    # e.g. 15s
+                        """,
     re.VERBOSE,
 )
 
@@ -44,6 +46,45 @@ def parse_time(ctx: core.CustomContext, arg: str, *, _add_now=False) -> dt:
         raise commands.BadArgument("Time must be in the future, sorry.")
 
     return parsed.replace(tzinfo=timezone.utc)
+
+def parse_reminder(ctx: core.CustomContext, arg: str):
+    time, _, reminder = arg.partition("|")
+    if reminder == "":
+        reminder = "Nothing"
+
+    final = _parse_time(time.strip(), start=ctx.message.created_at)
+
+    if final is None:
+        raise commands.BadArgument("I was unable to discern a date from your input. Please make sure that you follow this format: `<time> | <thing>`")
+
+    if pendulum.now() > final:
+        raise commands.BadArgument("Time MUST be in the future.")
+
+    return reminder.strip(), final
+
+
+
+def _parse_time(_input: str, *, start=None) -> dt:
+    final = None
+
+    if _input.startswith("in "):
+        _input = _input[3:]
+
+    match = TIME_REGEX.match(_input.replace(" ", "").replace("and", ""))
+    if match is not None and match.group(0):
+        data = {k: int(v) for k, v in match.groupdict(default="0").items()}
+        if start is None:
+            final = pendulum.now() + relativedelta(**data)
+        else:
+            final = start + relativedelta(**data)
+
+    else:
+        with suppress(pendulum.parsing.exceptions.ParserError):
+            final = pendulum.parse(_input, strict=False, day_first=True, now=start or pendulum.now())
+
+    return final
+
+
 
 
 def utcnow() -> dt:

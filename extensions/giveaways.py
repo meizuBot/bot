@@ -76,7 +76,7 @@ async def get_prize(ctx: core.CustomContext, argument: str) -> Optional[str]:
     return argument
 
 
-async def get_mex_winners(ctx: core.CustomContext, argument: str) -> Optional[int]:
+async def get_winners(ctx: core.CustomContext, argument: str) -> Optional[int]:
     if not argument.isdigit():
         await ctx.send(f"{random_tada()} Please send a number. ;-;")
         return None
@@ -154,7 +154,7 @@ class Giveaways(commands.Cog):
         resp = await wait_for(ctx)
         if resp is None:
             return
-        winners = await get_mex_winners(ctx, resp)
+        winners = await get_winners(ctx, resp)
         if winners is None:
             return
 

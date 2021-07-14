@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 
 import core
-from utils.time import human_timedelta, parse_time, utcnow
+from utils.time import human_timedelta, parse_reminder, parse_time, utcnow
 
 __all__ = ("setup",)
 
@@ -107,33 +107,37 @@ class Reminders(commands.Cog):
 
     @core.command(
         examples=(
-            "1w take out the trash",
-            '"4 months and 2 days" william\'s birthday',
-            "1week",
-            "1week2days fix this code",
+            "1w | take out the trash",
+            "4 months and 2 days | william's birthday",
+            "1 week",
+            "1 week 2days | fix this code",
         ),
         params={
-            "time": "The time when you want me to remind you for something.",
+            "time": "When you want me to remind you.",
             "thing": "The thing you want me to remind you to do.",
         },
+        usage="<time> | <thing>",
         returns="Confirmation that I have registered your reminder.",
     )
-    async def remind(self, ctx: core.CustomContext, time: str, *, thing: str = "Nothing"):
+    async def remind(self, ctx: core.CustomContext, *, thing: str):
         """A command to remind yourself of things
-        Times are in UTC.
+        Times are in UTC. 
+        Make sure to split your input with a pipe (|) or I will be angry at you.
         """
-        expires = parse_time(ctx, time)
+        _thing, expires = parse_reminder(ctx, thing)
         data = {
             "author": ctx.author.id,
             "channel": ctx.channel.id,
             "message": ctx.message.id,
-            "reminder_content": thing,
+            "reminder_content": _thing,
         }
 
         await self.create_timer("reminder", ctx.message.created_at, expires, data)
 
         delta = human_timedelta(expires, source=ctx.message.created_at)
-        await ctx.send(f"In {delta}: {thing}")
+        if _thing == "Nothing":
+            thing += "\nDid you forget to split your reminder with a pipe (|)? If you did, cancel this reminder, and retry."
+        await ctx.send(f"In {delta}: {_thing}")
 
     @commands.Cog.listener()
     async def on_reminder_complete(self, reminder):

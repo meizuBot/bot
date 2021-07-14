@@ -12,7 +12,7 @@ __all__ = ("setup",)
 log = logging.getLogger(__name__)
 
 
-fmt = "You've {plural} {user} {amount + 1} times! They've been {plural} a total of {total + 1} times."
+fmt = "You've {plural} {user} {amount} times! They've been {plural} a total of {total} times."
 
 
 class Interactions(commands.Cog):
@@ -27,7 +27,7 @@ class Interactions(commands.Cog):
         async with self.bot.session.get(url) as resp:
             if resp.ok:
                 data = await resp.json()
-                if url := data.get("url") is not None:
+                if (url := data.get("url")) is not None:
                     embed.set_image(url=url)
 
             if embed.image is None:
@@ -35,7 +35,9 @@ class Interactions(commands.Cog):
                 embed.description = "Oops, something went wrong."
 
 
-        embed.set_footer(fmt.format_map(await self.get_totals(method, initiator, receiver)))
+        vals = await self.get_totals(method, initiator, receiver)
+        vals["plural"] = plural
+        embed.set_footer(text=fmt.format_map(vals))
 
         return embed
 
@@ -75,10 +77,11 @@ class Interactions(commands.Cog):
 
     async def run_interaction(self, ctx: core.CustomContext, verb: str, plural: str, initiator: discord.Member, receiver: discord.User):
         self.invoke_check(verb, plural, initiator, receiver)
-
-        await ctx.send(embed=await self.construct_embed())
-
         await self.update(verb, initiator, receiver)
+
+        await ctx.send(embed=await self.construct_embed(verb, plural, initiator, receiver))
+
+
 
 
     @core.command(

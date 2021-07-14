@@ -4,7 +4,7 @@ asyncpg
 click
 discord.py @ git+https://github.com/rapptz/discord.py@master
 psutil
-python-dateutil
 pyyaml
 tabulate
 jishaku
+pendulum
