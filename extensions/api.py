@@ -93,6 +93,7 @@ class JSONHandler:
     def generate_command(self, command: commands.Command) -> dict:
         data = {
             "name": command.name,
+            "qualified_name": command.qualified_name,
             "aliases": command.aliases,
             "description": command.description,
             "signature": command.signature,
