@@ -1,7 +1,9 @@
 import asyncio
+import logging
 import re
 from datetime import datetime, timedelta
 from typing import NamedTuple, Union
+import aiohttp
 
 from discord import ButtonStyle, Embed, Interaction, ui
 from discord.ext import commands
@@ -18,6 +20,8 @@ EMOJIS = {
     "Socials": "<:socials:851127959758176256>",
     "Scores": "<:catshrug:851131304736194600>",
 }
+
+log = logging.getLogger(__name__)
 
 
 class OsuButton(ui.Button["OsuProfileView"]):
@@ -107,7 +111,10 @@ class Osu(commands.Cog):
         }
         while not self.bot.is_closed():
             async with self.bot.session.post(url, json=data) as r:
-                data = await r.json()
+                try:
+                    data = await r.json()
+                except aiohttp.ContentTypeError:
+                    log.warning(f"OSU api responded with text/html: {await r.json()}")
             self.headers["Authorization"] = "Bearer " + data["access_token"]
             await asyncio.sleep(data["expires_in"])
 
@@ -121,6 +128,7 @@ class Osu(commands.Cog):
 
     @core.group(usage="<subcommand>")
     async def osu(self, ctx: core.CustomContext):
+        """If you do not invoke a subcommand, this command sends help."""
         if ctx.invoked_subcommand is None:
             await ctx.send_help(ctx.command)
 

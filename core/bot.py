@@ -55,6 +55,8 @@ class CustomBot(commands.Bot):
         self.extra = Extra()
         self.start_time = None
 
+        self.categories = {}
+
         self.context = commands.Context
 
     async def __prep(self):
@@ -69,6 +71,9 @@ class CustomBot(commands.Bot):
             )
         self.prepped.set()
         log.info("Completed preperation.")
+
+    def add_category(self, data: dict) -> None:
+        ...
 
     def load_extensions(self):
         extensions = [

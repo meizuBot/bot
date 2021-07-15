@@ -136,7 +136,7 @@ class Reminders(commands.Cog):
 
         delta = human_timedelta(expires, source=ctx.message.created_at)
         if _thing == "Nothing":
-            thing += "\nDid you forget to split your reminder with a pipe (|)? If you did, cancel this reminder, and retry."
+            _thing += "\nDid you forget to split your reminder with a pipe (|)? If you did, cancel this reminder, and retry."
         await ctx.send(f"In {delta}: {_thing}")
 
     @commands.Cog.listener()
