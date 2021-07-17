@@ -55,7 +55,10 @@ class CustomBot(commands.Bot):
         self.extra = Extra()
         self.start_time = None
 
-        self.categories = {}
+        self.categories = {
+            "private": {},
+            "public": {}
+        }
 
         self.context = commands.Context
 
@@ -72,25 +75,34 @@ class CustomBot(commands.Bot):
         self.prepped.set()
         log.info("Completed preperation.")
 
-    def add_category(self, data: dict) -> None:
-        ...
+    def add_category(self, name: str, cogs: List[commands.Cog], *, path="public", emoji: str=None) -> None:
+        assert path in ("private", "public"), "Path must be private or public"
+
+        data = {
+            name: {}
+        }
+
+        for cog in cogs:
+            self.add_cog(cog)
+            data[name][cog.__cog_name__] = self.get_cog(cog.__cog_name__)
+
+        self.categories[path].update(data)
+
 
     def load_extensions(self):
-        extensions = [
+        extensions = (
             "core.context",
-            "extensions.help",
+            "extensions.internal",
+            "extensions.internal.help",
             "extensions.osu",
-            "extensions.errorhandler",
             "extensions.interactions",
             "extensions.reminders",
-            "extensions.background",
             "extensions.general",
             "extensions.owner",
             "extensions.casino",
             "extensions.useful",
             "extensions.giveaways",
-            "extensions.api"
-        ]
+        )
         for ext in extensions:
             self.load_extension(ext)
         self.load_extension("jishaku")
