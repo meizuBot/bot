@@ -4,6 +4,6 @@ from .osu import Osu
 
 def setup(bot: core.Bot):
     cogs = (
-        Osu(bot)
+        Osu(bot),
     )
     bot.add_category("Games", cogs, emoji="🎮")
