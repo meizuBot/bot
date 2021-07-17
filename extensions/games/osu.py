@@ -36,7 +36,7 @@ class OsuButton(ui.Button["OsuProfileView"]):
 class OsuProfileView(ui.View):
     embed: Embed
 
-    def __init__(self, ctx: core.CustomContext, messages: dict):
+    def __init__(self, ctx: core.Context, messages: dict):
         super().__init__()
         self.ctx = ctx
         self.data = messages
@@ -66,7 +66,7 @@ OsuConverterResponse = NamedTuple("ConverterResponse", [("search", Union[int, st
 
 
 class OsuUserConverter(commands.Converter):
-    async def convert(self, ctx: "core.CustomContext", argument) -> OsuConverterResponse:
+    async def convert(self, ctx: "core.Context", argument) -> OsuConverterResponse:
         if argument is None:
             _id = await ctx.bot.pool.fetchval(
                 "SELECT id FROM users.games WHERE game = 'osu' AND snowflake = $1", ctx.author.id
@@ -91,7 +91,7 @@ class OsuUserConverter(commands.Converter):
 
 
 class Osu(commands.Cog):
-    def __init__(self, bot: core.CustomBot):
+    def __init__(self, bot: core.Bot):
         self.bot = bot
         self.emoji = "<:osu:850783495386300416>"
         self.show_subcommands = True
@@ -127,7 +127,7 @@ class Osu(commands.Cog):
         return data
 
     @core.group(usage="<subcommand>")
-    async def osu(self, ctx: core.CustomContext):
+    async def osu(self, ctx: core.Context):
         """If you do not invoke a subcommand, this command sends help."""
         if ctx.invoked_subcommand is None:
             await ctx.send_help(ctx.command)
@@ -141,7 +141,7 @@ class Osu(commands.Cog):
         },
         returns="An interactive view that showcases an osu! user's profile.",
     )
-    async def osu_profile(self, ctx: core.CustomContext, query: str = None):
+    async def osu_profile(self, ctx: core.Context, query: str = None):
         """A command to view someone's osu! profile.
         You can view the user's stats and socials through an interactive button menu.
         """
@@ -206,7 +206,7 @@ class Osu(commands.Cog):
         params={"query": "The user you want to register yourself to."},
         returns="Confirmation that you got registered.",
     )
-    async def osu_register(self, ctx: core.CustomContext, query: OsuUserConverter):
+    async def osu_register(self, ctx: core.Context, query: OsuUserConverter):
         """Simple command that registers you to an osu! profile
         Two users can have the same profile.
         """
@@ -216,5 +216,5 @@ class Osu(commands.Cog):
         await ctx.send("Registered you into the database.")
         
 
-def setup(bot: core.CustomBot):
+def setup(bot: core.Bot):
     bot.add_cog(Osu(bot))

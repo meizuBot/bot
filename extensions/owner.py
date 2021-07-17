@@ -20,7 +20,7 @@ from utils.time import Timer
 __all__ = ("setup",)
 
 
-async def send(ctx: core.CustomContext, result, stdout_):
+async def send(ctx: core.Context, result, stdout_):
     try:
         await ctx.message.add_reaction("<:prettythumbsup:806390638044119050>")
     except (discord.HTTPException, discord.Forbidden):
@@ -57,7 +57,7 @@ async def send(ctx: core.CustomContext, result, stdout_):
 
 
 class Owner(commands.Cog, command_attrs=dict(hidden=True)):
-    def __init__(self, bot: core.CustomBot):
+    def __init__(self, bot: core.Bot):
         self.bot = bot
         self.pool = self.bot.pool
 
@@ -65,7 +65,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         return await self.bot.is_owner(ctx.author)
 
     @core.command()
-    async def eval(self, ctx: core.CustomContext, *, argument: codeblock_converter):
+    async def eval(self, ctx: core.Context, *, argument: codeblock_converter):
         env = {
             "ctx": ctx,
             "discord": discord,
@@ -153,18 +153,18 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
                 return await ctx.send(f"```py\n{value}{exception}```"[:1990])
 
     @core.group()
-    async def sql(self, ctx: core.CustomContext):
+    async def sql(self, ctx: core.Context):
         if not ctx.invoked_subcommand:
             await ctx.send_help(ctx.command)
 
     @sql.command(aliases=("e",))
-    async def execute(self, ctx: core.CustomContext, *, query: str):
+    async def execute(self, ctx: core.Context, *, query: str):
         with Timer() as timer:
             ret = await self.pool.execute(query.strip("`"))
         await ctx.send(f"`{ret}`\n**Executed in {timer.exact}**")
 
     @sql.command(aliases=("f",))
-    async def fetch(self, ctx: core.CustomContext, *, query: str):
+    async def fetch(self, ctx: core.Context, *, query: str):
         with Timer() as timer:
             ret = await self.pool.fetch(query.strip("`"))
         table = tabulate((dict(row) for row in ret), headers="keys", tablefmt="github")
@@ -173,13 +173,13 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         await ctx.send(f"{codeblock(table)}\n**Retrieved {len(ret)} rows in {timer.exact}**")
 
     @sql.command(aliases=("fv",))
-    async def fetchval(self, ctx: core.CustomContext, *, query: str):
+    async def fetchval(self, ctx: core.Context, *, query: str):
         with Timer() as timer:
             ret = await self.pool.fetchval(query.strip("`"))
         await ctx.send(f"{codeblock(f'{ret!r}')}\n**Retrieved in {timer.exact}**")
 
     @sql.error
-    async def sql_error(self, ctx: core.CustomContext, error: Exception):
+    async def sql_error(self, ctx: core.Context, error: Exception):
         if isinstance(error, commands.CommandInvokeError):
             error = error.original
             if isinstance(error, asyncpg.exceptions.PostgresSyntaxError):
@@ -187,17 +187,17 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         await ctx.send(error)
 
     @fetch.error
-    async def fetch_error(self, ctx: core.CustomContext, error):
+    async def fetch_error(self, ctx: core.Context, error):
         await self.sql_error(ctx, error)
 
     @fetchval.error
-    async def fetchval_error(self, ctx: core.CustomContext, error):
+    async def fetchval_error(self, ctx: core.Context, error):
         await self.sql_error(ctx, error)
 
     @execute.error
-    async def execute_error(self, ctx: core.CustomContext, error):
+    async def execute_error(self, ctx: core.Context, error):
         await self.sql_error(ctx, error)
 
 
-def setup(bot: core.CustomBot):
+def setup(bot: core.Bot):
     bot.add_cog(Owner(bot))

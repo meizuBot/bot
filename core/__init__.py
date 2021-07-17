@@ -1,6 +1,6 @@
 from discord.ext import commands
-from .bot import CustomBot
-from .context import CustomContext
+from .bot import Bot
+from .context import Context
 
 __all__ = ("command", "group", "CustomBot", "CustomContext")
 

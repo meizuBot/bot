@@ -1,17 +1,17 @@
 from discord.ext import commands
 
-from . import CustomBot
+from . import Bot
 
 __all__ = ("CustomContext", "setup", "teardown")
 
 
-class CustomContext(commands.Context):
-    bot: CustomBot
+class Context(commands.Context):
+    bot: Bot
 
 
-def setup(bot: CustomBot) -> None:
-    bot.context = CustomContext
+def setup(bot: Bot) -> None:
+    bot.context = Context
 
 
-def teardown(bot: CustomBot) -> None:
+def teardown(bot: Bot) -> None:
     bot.context = commands.Context

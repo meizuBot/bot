@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 __all__ = ("CustomBot",)
 
 
-def get_prefix(bot: "CustomBot", message: discord.Message) -> Union[List[str], str]:
+def get_prefix(bot: "Bot", message: discord.Message) -> Union[List[str], str]:
     return commands.when_mentioned_or(*config.prefix)(bot, message)
 
 
@@ -32,7 +32,7 @@ class Extra:
         return 1000 * mean(lat.total_seconds() for lat in self.message_latencies)
 
 
-class CustomBot(commands.Bot):
+class Bot(commands.Bot):
     loop: AbstractEventLoop
 
     def __init__(self, loop: AbstractEventLoop) -> None:
@@ -55,17 +55,12 @@ class CustomBot(commands.Bot):
         self.extra = Extra()
         self.start_time = None
 
-        self.categories = {
-            "private": {},
-            "public": {}
-        }
+        self.categories = {"private": {}, "public": {}}
 
         self.context = commands.Context
 
     async def __prep(self):
-        self.session = ClientSession(
-            headers={"User-Agent": "Walrus (https://github.com/ppotatoo/bot-rewrite)"}
-        )
+        self.session = ClientSession(headers={"User-Agent": "Walrus (https://github.com/ppotatoo/bot-rewrite)"})
         await self.wait_until_ready()
         async with self.pool.acquire() as conn:
             await conn.executemany(
@@ -75,12 +70,10 @@ class CustomBot(commands.Bot):
         self.prepped.set()
         log.info("Completed preperation.")
 
-    def add_category(self, name: str, cogs: List[commands.Cog], *, path="public", emoji: str=None) -> None:
+    def add_category(self, name: str, cogs: List[commands.Cog], *, path="public", emoji: str = None) -> None:
         assert path in ("private", "public"), "Path must be private or public"
 
-        data = {
-            name: {}
-        }
+        data = {name: {}}
 
         for cog in cogs:
             self.add_cog(cog)
@@ -88,13 +81,12 @@ class CustomBot(commands.Bot):
 
         self.categories[path].update(data)
 
-
     def load_extensions(self):
         extensions = (
             "core.context",
             "extensions.internal",
             "extensions.internal.help",
-            "extensions.osu",
+            "extensions.games",
             "extensions.interactions",
             "extensions.reminders",
             "extensions.general",

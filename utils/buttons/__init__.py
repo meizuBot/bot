@@ -65,7 +65,7 @@ class ConfirmationView(discord.ui.View):
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         return self.user == interaction.user
 
-    async def start(self, ctx: core.CustomContext, **send_kwargs) -> Tuple[discord.Message, bool]:
+    async def start(self, ctx: core.Context, **send_kwargs) -> Tuple[discord.Message, bool]:
         await ctx.send(**send_kwargs, view=self)
         await self.event.wait()
         return self.message, self.value

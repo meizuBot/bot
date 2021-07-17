@@ -16,7 +16,7 @@ fmt = "You've {plural} {user} {amount} times! They've been {plural} a total of {
 
 
 class Interactions(commands.Cog):
-    def __init__(self, bot: core.CustomBot):
+    def __init__(self, bot: core.Bot):
         self.bot = bot
         self.emoji = "<:mitsuri_pleading:853237551262466108>"
 
@@ -75,7 +75,7 @@ class Interactions(commands.Cog):
         if receiver.bot is True and receiver.id != self.bot.user.id:
             raise commands.BadArgument(f"Bots can't be {plural}!")
 
-    async def run_interaction(self, ctx: core.CustomContext, verb: str, plural: str, initiator: discord.Member, receiver: discord.User):
+    async def run_interaction(self, ctx: core.Context, verb: str, plural: str, initiator: discord.Member, receiver: discord.User):
         self.invoke_check(verb, plural, initiator, receiver)
         await self.update(verb, initiator, receiver)
 
@@ -89,7 +89,7 @@ class Interactions(commands.Cog):
         params={"user": "The user you want to bonk 🔨"},
         returns="You bonking a user",
     )
-    async def bonk(self, ctx: core.CustomContext, user: discord.User):
+    async def bonk(self, ctx: core.Context, user: discord.User):
         """Bonk!
         You can view how many times you have bonked the user, and how many times they have been bonked in total.
         """
@@ -100,7 +100,7 @@ class Interactions(commands.Cog):
         params={"user": "The user you want to bite 😳"},
         returns="You biting a user",
     )
-    async def bite(self, ctx: core.CustomContext, user: discord.User):
+    async def bite(self, ctx: core.Context, user: discord.User):
         """A command that lets you bite another user!
         You can view how many times you've bitten this user, and how many times they've been bitten
         """
@@ -111,7 +111,7 @@ class Interactions(commands.Cog):
         params={"user": "The user you want to cuddle"},
         returns="A cuddle between friends ❤️",
     )
-    async def cuddle(self, ctx: core.CustomContext, user: discord.User):
+    async def cuddle(self, ctx: core.Context, user: discord.User):
         """A command to hug a user.
         You can view how many times you have cuddled this user, and how many times they have been cuddled with.
         """

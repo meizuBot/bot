@@ -25,7 +25,7 @@ TIME_REGEX = re.compile("""
 )
 
 
-def parse_time(ctx: core.CustomContext, arg: str, *, _add_now=False) -> dt:
+def parse_time(ctx: core.Context, arg: str, *, _add_now=False) -> dt:
     now = utcnow()
     argument = arg.replace(" and ", "").replace(" ", "")
 
@@ -47,7 +47,7 @@ def parse_time(ctx: core.CustomContext, arg: str, *, _add_now=False) -> dt:
 
     return parsed.replace(tzinfo=timezone.utc)
 
-def parse_reminder(ctx: core.CustomContext, arg: str):
+def parse_reminder(ctx: core.Context, arg: str):
     time, _, reminder = arg.partition("|")
     if reminder == "":
         reminder = "Nothing"

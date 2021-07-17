@@ -93,7 +93,7 @@ class Gamble:
 
 
 class Blackjack(ui.View):
-    def __init__(self, ctx: core.CustomContext, *, bet: int):
+    def __init__(self, ctx: core.Context, *, bet: int):
         super().__init__()
         self.ctx = ctx
         self.embed = None
@@ -233,15 +233,15 @@ class Blackjack(ui.View):
 
 
 class Casino(commands.Cog):
-    def __init__(self, bot: core.CustomBot):
+    def __init__(self, bot: core.Bot):
         self.bot = bot
 
     @core.command()
     @commands.is_owner()
-    async def blackjack(self, ctx: core.CustomContext):
+    async def blackjack(self, ctx: core.Context):
         game = Blackjack(ctx, bet=1000)
         await game.start()
 
 
-def setup(bot: core.CustomBot):
+def setup(bot: core.Bot):
     bot.add_cog(Casino(bot))

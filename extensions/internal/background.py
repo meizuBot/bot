@@ -15,7 +15,7 @@ log = getLogger(__name__)
 
 
 class BackgroundEvents(commands.Cog):
-    def __init__(self, bot: core.CustomBot):
+    def __init__(self, bot: core.Bot):
         self.bot = bot
         self._lock = asyncio.Lock(loop=self.bot.loop)
 
@@ -94,7 +94,7 @@ class BackgroundEvents(commands.Cog):
                     self._socket_cache.clear()
 
     @commands.Cog.listener()
-    async def on_command_completion(self, ctx: core.CustomContext):
+    async def on_command_completion(self, ctx: core.Context):
         if ctx.command is None:
             return
 
@@ -134,5 +134,5 @@ class BackgroundEvents(commands.Cog):
                 self._usernames_cache.append({"snowflake": after.id, "username": after.name})
 
 
-def setup(bot: core.CustomBot):
+def setup(bot: core.Bot):
     bot.add_cog(BackgroundEvents(bot))

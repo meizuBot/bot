@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 
 class Reminders(commands.Cog):
-    def __init__(self, bot: core.CustomBot):
+    def __init__(self, bot: core.Bot):
         self.bot = bot
         self.emoji = "<a:pikawink:853236064991182909>"
         self.show_subcommands = True
@@ -119,7 +119,7 @@ class Reminders(commands.Cog):
         usage="<time> | <thing>",
         returns="Confirmation that I have registered your reminder.",
     )
-    async def remind(self, ctx: core.CustomContext, *, thing: str):
+    async def remind(self, ctx: core.Context, *, thing: str):
         """A command to remind yourself of things
         Times are in UTC. 
         Make sure to split your input with a pipe (|) or I will be angry at you.
@@ -158,5 +158,5 @@ class Reminders(commands.Cog):
             return
 
 
-def setup(bot: core.CustomBot):
+def setup(bot: core.Bot):
     bot.add_cog(Reminders(bot))

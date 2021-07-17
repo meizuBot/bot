@@ -11,7 +11,7 @@ from aiohttp import web
 log = logging.getLogger(__name__)
 
 class APIHandler:
-    def __init__(self, bot: core.CustomBot) -> None:
+    def __init__(self, bot: core.Bot) -> None:
         self.bot = bot
         self.json = JSONHandler(self.bot)
 
@@ -60,7 +60,7 @@ class APIHandler:
 
 
 class JSONHandler:
-    def __init__(self, bot: core.CustomBot) -> None:
+    def __init__(self, bot: core.Bot) -> None:
         self.bot = bot
 
     async def generate_stats(self) -> Dict[str, int]:
@@ -148,7 +148,7 @@ class JSONHandler:
 
 
 class BackendAPI(commands.Cog):
-    def __init__(self, bot: core.CustomBot):
+    def __init__(self, bot: core.Bot):
         self.bot = bot
         self.headers = {"Authorization": f"token {gist.token}", "User-Agent": "ppotatoo", "Accept": "application/vnd.github.v3+json"}
         self.gist_update.start()
@@ -179,5 +179,5 @@ class BackendAPI(commands.Cog):
         await self.bot.wait_until_ready()
 
     
-def setup(bot: core.CustomBot):
+def setup(bot: core.Bot):
     bot.add_cog(BackendAPI(bot))

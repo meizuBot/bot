@@ -8,7 +8,7 @@ import click
 from asyncpg import Pool, create_pool
 
 from utils import db
-from core import CustomBot
+from core import Bot
 from config import postgres_uri, token
 
 
@@ -23,7 +23,7 @@ def run():
 
     loop = asyncio.get_event_loop()
 
-    bot = CustomBot(loop=loop)
+    bot = Bot(loop=loop)
     bot.pool = loop.run_until_complete(db.create_pool(bot=bot, dsn=postgres_uri, loop=bot.loop))
 
     bot.run(token)

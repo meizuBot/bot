@@ -18,7 +18,7 @@ voice_games = {
 
 
 class GameConverter(commands.Converter):
-    async def convert(self, ctx: core.CustomContext, argument: str):
+    async def convert(self, ctx: core.Context, argument: str):
         game = voice_games.get(argument.lower().strip())
         if game is None:
             raise commands.BadArgument("Invalid voice game specified.")
@@ -26,7 +26,7 @@ class GameConverter(commands.Converter):
 
 
 class Useful(commands.Cog):
-    def __init__(self, bot: core.CustomBot):
+    def __init__(self, bot: core.Bot):
         self.bot = bot
 
     @core.command(
@@ -37,7 +37,7 @@ class Useful(commands.Cog):
     )
     @checks.can_run(create_instant_invite=True)
     async def vc_game(
-        self, ctx: core.CustomContext, game: GameConverter, channel: discord.VoiceChannel = None
+        self, ctx: core.Context, game: GameConverter, channel: discord.VoiceChannel = None
     ):
         """Creates an invite link for an interactive game in a Voice Channel"""
         json = {
@@ -63,5 +63,5 @@ class Useful(commands.Cog):
         await ctx.send("https://discord.com/invite/" + data["code"])
 
 
-def setup(bot: core.CustomBot):
+def setup(bot: core.Bot):
     bot.add_cog(Useful(bot))

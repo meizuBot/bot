@@ -6,9 +6,9 @@ import discord
 from discord.ext import commands
 
 import core
-from core.bot import CustomBot
+from core.bot import Bot
 from core.config import twitter_bearer_token
-from core.context import CustomContext
+from core.context import Context
 
 __all__ = ("setup",)
 
@@ -16,7 +16,7 @@ API_URL = "https://api.twitter.com"
 
 
 class TwitterStreamer:
-    def __init__(self, bot: CustomBot):
+    def __init__(self, bot: Bot):
         self.bot = bot
         self.session = None
 
@@ -75,11 +75,11 @@ class TwitterStreamer:
 
 
 class Twitter(commands.Cog):
-    def __init__(self, bot: CustomBot):
+    def __init__(self, bot: Bot):
         self.bot = bot
         self.handler = TwitterStreamer(bot)
         self.bot.loop.create_task(self.handler.start())
 
 
-def setup(bot: CustomBot):
+def setup(bot: Bot):
     bot.add_cog(Twitter(bot))

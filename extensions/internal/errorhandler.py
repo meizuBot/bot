@@ -10,11 +10,11 @@ __all__ = ("setup",)
 
 
 class ErrorHandler(commands.Cog):
-    def __init__(self, bot: core.CustomBot):
+    def __init__(self, bot: core.Bot):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx: core.CustomContext, error: Exception):
+    async def on_command_error(self, ctx: core.Context, error: Exception):
         owner_errors = (
             commands.MissingAnyRole,
             commands.MissingPermissions,
@@ -71,5 +71,5 @@ class ErrorHandler(commands.Cog):
         await ctx.send("Oops, an error occured. Here's some info on it: \n" + traceback)
 
 
-def setup(bot: core.CustomBot):
+def setup(bot: core.Bot):
     bot.add_cog(ErrorHandler(bot))

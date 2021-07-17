@@ -3,7 +3,7 @@ from .api import BackendAPI
 from .background import BackgroundEvents
 from .errorhandler import ErrorHandler
 
-def setup(bot: core.CustomBot) -> None:
+def setup(bot: core.Bot) -> None:
     cogs = (
         BackendAPI(bot),
         BackgroundEvents(bot),

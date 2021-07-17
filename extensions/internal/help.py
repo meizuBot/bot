@@ -11,7 +11,7 @@ from utils.buttons import menus
 __all__ = ("setup",)
 
 
-def get_sig(ctx: core.CustomContext, command: Union[core.Command, commands.Command]) -> str:
+def get_sig(ctx: core.Context, command: Union[core.Command, commands.Command]) -> str:
     sig = command.signature
     if not sig and not command.parent:
         return f"`{ctx.clean_prefix}{command.name}`"
@@ -29,7 +29,7 @@ def add_formatting(command):
 
 @decos.pages(per_page=4)
 async def CogSource(source, menu: menus.ButtonMenu, _commands: List[Union[core.Command, commands.Command]]):
-    ctx: core.CustomContext = menu.ctx
+    ctx: core.Context = menu.ctx
     page = f"{menu.current_page + 1}/{source.get_max_pages()}"
     cog: commands.Cog = _commands[0].cog
     name = cog.qualified_name
@@ -80,7 +80,7 @@ class GroupSource(menus.ListButtonSource):
 
 
 class CustomHelp(commands.HelpCommand):
-    context: core.CustomContext
+    context: core.Context
 
     async def filter_commands(self, cmds, *, sort=True, key=None):
         if sort and key is None:
@@ -189,9 +189,9 @@ class CustomHelp(commands.HelpCommand):
         await self.send(embed=embed)
 
 
-def setup(bot: core.CustomBot):
+def setup(bot: core.Bot):
     bot.help_command = CustomHelp()
 
 
-def teardown(bot: core.CustomBot):
+def teardown(bot: core.Bot):
     bot.help_command = commands.DefaultHelpCommand()
