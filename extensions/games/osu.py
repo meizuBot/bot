@@ -45,6 +45,12 @@ class OsuProfileView(ui.View):
             self.add_item(OsuButton(label=i))
         self.add_item(StopButton())
 
+    async def interaction_check(self, interaction: Interaction) -> bool:
+        if interaction.user != self.ctx.author:
+            await interaction.response.send_message(f"This view is owned by {self.ctx.author}.", ephemeral=True)
+            return False
+        return True
+
     def construct_embed(self):
         self.embed = self.ctx.bot.embed(
             title=f"{self.data['username']}'s osu! profile",
@@ -206,7 +212,7 @@ class Osu(commands.Cog):
         params={"query": "The user you want to register yourself to."},
         returns="Confirmation that you got registered.",
     )
-    async def osu_register(self, ctx: core.Context, query: OsuUserConverter):
+    async def osu_register(self, ctx: core.Context, *, query: OsuUserConverter):
         """Simple command that registers you to an osu! profile
         Two users can have the same profile.
         """
