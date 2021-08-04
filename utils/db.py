@@ -45,7 +45,7 @@ class CustomPool(Pool):
     async def register_user(self, game: str, snowflake: int, _id: str):
         query = """
             INSERT INTO
-                games
+                users.games
             VALUES
                 ($1, $2, $3)
             ON CONFLICT (game, snowflake)
