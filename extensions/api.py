@@ -171,8 +171,8 @@ class BackendAPI(commands.Cog):
             }
         }
         url = "https://api.github.com/gists/" + gist.id
-        async with self.bot.session.patch(url, json=data, headers=self.headers) as resp:
-            log.info("Posted stats to gist.")
+        await self.bot.session.patch(url, json=data, headers=self.headers)
+        log.info("Posted stats to gist.")
 
     @gist_update.before_loop
     async def wait(self):
