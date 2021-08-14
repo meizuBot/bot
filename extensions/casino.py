@@ -197,9 +197,7 @@ class Blackjack(ui.View):
             value=(f"`{'`, `'.join(str(card) for card in player.cards)}`\n" f"Value: `{player.value}`"),
         )
         dealer_cards = (
-            f"`{'`, `'.join(str(card) for card in dealer.cards)}`"
-            if some is False
-            else f"`?`, `{dealer.cards[1]}`"
+            f"`{'`, `'.join(str(card) for card in dealer.cards)}`" if some is False else f"`?`, `{dealer.cards[1]}`"
         )
         dealer_value = dealer.value if some is False else int(dealer.cards[1])
 

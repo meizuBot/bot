@@ -1,6 +1,8 @@
-import yaml
 import logging
 import logging.config
+
+import yaml
+
 with open("logs/bot/bot.config.yml") as f:
     logging.config.dictConfig(yaml.safe_load(f))
 
@@ -12,11 +14,12 @@ from traceback import format_exc
 import click
 from asyncpg import Pool, create_pool
 
-from utils import db
-from core import Bot
 from config import postgres_uri, token
+from core import Bot
+from utils import db
 
 log = logging.getLogger(__name__)
+
 
 def run():
     os.environ["JISHAKU_NO_UNDERSCORE"] = "True"

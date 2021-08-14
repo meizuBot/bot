@@ -36,9 +36,7 @@ class Useful(commands.Cog):
         returns="An invite link for the channel.",
     )
     @checks.can_run(create_instant_invite=True)
-    async def vc_game(
-        self, ctx: core.Context, game: GameConverter, channel: discord.VoiceChannel = None
-    ):
+    async def vc_game(self, ctx: core.Context, game: GameConverter, channel: discord.VoiceChannel = None):
         """Creates an invite link for an interactive game in a Voice Channel"""
         json = {
             "max_age": 86400,
@@ -51,13 +49,9 @@ class Useful(commands.Cog):
         if channel is None:
             voice_state = ctx.author.voice
             if voice_state is None:
-                raise commands.BadArgument(
-                    "You are not in a voice channel and you did not specify a channel."
-                )
+                raise commands.BadArgument("You are not in a voice channel and you did not specify a channel.")
             channel = voice_state.channel
-        data = await self.bot.http.request(
-            Route("POST", "/channels/" + str(channel.id) + "/invites"), json=json
-        )
+        data = await self.bot.http.request(Route("POST", "/channels/" + str(channel.id) + "/invites"), json=json)
         if data.get("guild") is None or data.get("message") is not None:
             return await ctx.send("Something went wrong when creating the invite.")
         await ctx.send("https://discord.com/invite/" + data["code"])

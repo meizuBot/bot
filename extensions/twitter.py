@@ -21,10 +21,7 @@ class TwitterStreamer:
         self.session = None
 
     async def start(self):
-        url = (
-            API_URL
-            + "/2/tweets/search/stream?tweet.fields=created_at&expansions=author_id&user.fields=created_at"
-        )
+        url = API_URL + "/2/tweets/search/stream?tweet.fields=created_at&expansions=author_id&user.fields=created_at"
 
         # https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/guides/connecting
         stall_timeout = 90

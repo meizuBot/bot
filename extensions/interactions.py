@@ -20,7 +20,9 @@ class Interactions(commands.Cog):
         self.bot = bot
         self.emoji = "<:mitsuri_pleading:853237551262466108>"
 
-    async def construct_embed(self, method: str, plural: str, initiator: discord.Member, receiver: discord.User) -> discord.Embed:
+    async def construct_embed(
+        self, method: str, plural: str, initiator: discord.Member, receiver: discord.User
+    ) -> discord.Embed:
         embed = self.bot.embed()
 
         url = "https://api.waifu.pics/sfw/" + method
@@ -33,7 +35,6 @@ class Interactions(commands.Cog):
             if embed.image is None:
                 log.warning(f"Embed image failed to load. Method: {method}, Code: {resp.status}")
                 embed.description = "Oops, something went wrong."
-
 
         vals = await self.get_totals(method, initiator, receiver)
         vals["plural"] = plural
@@ -75,14 +76,13 @@ class Interactions(commands.Cog):
         if receiver.bot is True and receiver.id != self.bot.user.id:
             raise commands.BadArgument(f"Bots can't be {plural}!")
 
-    async def run_interaction(self, ctx: core.Context, verb: str, plural: str, initiator: discord.Member, receiver: discord.User):
+    async def run_interaction(
+        self, ctx: core.Context, verb: str, plural: str, initiator: discord.Member, receiver: discord.User
+    ):
         self.invoke_check(verb, plural, initiator, receiver)
         await self.update(verb, initiator, receiver)
 
         await ctx.send(embed=await self.construct_embed(verb, plural, initiator, receiver))
-
-
-
 
     @core.command(
         examples=("@ppotatoo",),

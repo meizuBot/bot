@@ -1,5 +1,6 @@
 import asyncio
-from datetime import datetime as dt, timedelta
+from datetime import datetime as dt
+from datetime import timedelta
 from random import choice
 from typing import List, Optional
 
@@ -82,9 +83,7 @@ async def get_winners(ctx: core.Context, argument: str) -> Optional[int]:
         return None
     length = len(argument)
     if length > 15 or length < 1:
-        await ctx.send(
-            f"{random_tada()} Max winners can't be more than 15, and must be greater or equal to 0."
-        )
+        await ctx.send(f"{random_tada()} Max winners can't be more than 15, and must be greater or equal to 0.")
         return None
 
     return int(argument)
@@ -185,8 +184,7 @@ class Giveaways(commands.Cog):
 
         embed = self.bot.embed(
             description=(
-                f"React with {selected_tada} to enter.\n"
-                f"There will be {winners} {plural('winner(s)', winners)}."
+                f"React with {selected_tada} to enter.\n" f"There will be {winners} {plural('winner(s)', winners)}."
             ),
             color=discord.Color.blurple(),
             timestamp=expires,
@@ -242,9 +240,7 @@ class Giveaways(commands.Cog):
 
         return True
 
-    async def get_winners(
-        self, message: discord.Message, *, emoji: int, winners: int
-    ) -> List[discord.Member]:
+    async def get_winners(self, message: discord.Message, *, emoji: int, winners: int) -> List[discord.Member]:
         if not message.reactions:
             return []
 
@@ -258,9 +254,7 @@ class Giveaways(commands.Cog):
         if isinstance(error, commands.MaxConcurrencyReached):
             return await ctx.send("Sorry, there is already a giveaway being created in this channel.")
 
-    async def determine_winners(
-        self, message: discord.Message, *, emoji: int, winners: int
-    ) -> List[discord.Member]:
+    async def determine_winners(self, message: discord.Message, *, emoji: int, winners: int) -> List[discord.Member]:
         reaction = discord.utils.get(message.reactions, emoji__id=emoji)
         users = [user async for user in reaction.users() if user.bot is False]
 

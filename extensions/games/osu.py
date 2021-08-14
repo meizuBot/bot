@@ -3,8 +3,8 @@ import logging
 import re
 from datetime import datetime, timedelta
 from typing import NamedTuple, Union
-import aiohttp
 
+import aiohttp
 from discord import ButtonStyle, Embed, Interaction, ui
 from discord.ext import commands
 from humanize import precisedelta
@@ -220,7 +220,7 @@ class Osu(commands.Cog):
 
         await self.bot.pool.register_user("osu", ctx.author.id, str(data["id"]))
         await ctx.send("Registered you into the database.")
-        
+
 
 def setup(bot: core.Bot):
     bot.add_cog(Osu(bot))

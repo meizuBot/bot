@@ -56,9 +56,7 @@ class ErrorHandler(commands.Cog):
             return await ctx.send(embed=self.bot.embed(description=desc))
 
         if isinstance(error, commands.DisabledCommand):
-            return await ctx.send(
-                embed=self.bot.embed(description=f"`{ctx.invoked_with}` has been disabled.")
-            )
+            return await ctx.send(embed=self.bot.embed(description=f"`{ctx.invoked_with}` has been disabled."))
 
         if isinstance(error, asyncio.TimeoutError):
             return await ctx.send(embed=self.bot.embed(description=f"{ctx.invoked_with} timed out."))

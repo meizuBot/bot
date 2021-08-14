@@ -1,14 +1,17 @@
-from typing import Dict, Union
-from discord.ext import commands, tasks
-import core
-import discord
 import json
-from utils.time import utcnow
-from config import gist
 import logging
+from typing import Dict, Union
+
+import discord
 from aiohttp import web
+from discord.ext import commands, tasks
+
+import core
+from config import gist
+from utils.time import utcnow
 
 log = logging.getLogger(__name__)
+
 
 class APIHandler:
     def __init__(self, bot: core.Bot) -> None:
@@ -58,7 +61,6 @@ class APIHandler:
         log.info("Backend JSON API started up.")
 
 
-
 class JSONHandler:
     def __init__(self, bot: core.Bot) -> None:
         self.bot = bot
@@ -68,16 +70,20 @@ class JSONHandler:
             "guilds": 0,
             "unique_users": len(self.bot.users),
             "total_members": 0,
-            "total_commands": len(tuple(i for i in self.bot.walk_commands() if i.cog is not None and not i.cog.qualified_name == "Jishaku")),
+            "total_commands": len(
+                tuple(
+                    i for i in self.bot.walk_commands() if i.cog is not None and not i.cog.qualified_name == "Jishaku"
+                )
+            ),
             "total_commands_run": await self.bot.pool.fetchval("SELECT COUNT(*) FROM stats.commands"),
             "text_channels": 0,
-            "voice_channels": 0
+            "voice_channels": 0,
         }
         for guild in self.bot.guilds:
-            data["guilds"] +=1
+            data["guilds"] += 1
             if guild.unavailable:
                 continue
-            
+
             data["total_members"] += guild.member_count
             for channel in guild.channels:
                 if isinstance(channel, discord.TextChannel):
@@ -102,8 +108,7 @@ class JSONHandler:
             "cooldown": getattr(command, "cooldown", None),
             "returns": getattr(command, "returns", None),
             "params": getattr(command, "params_", None),
-
-            "subcommands": self.generate_subcommands(command)
+            "subcommands": self.generate_subcommands(command),
         }
         examples = getattr(command, "examples", None)
         if examples:
@@ -129,10 +134,7 @@ class JSONHandler:
         for cog_name, cog in self.bot.cogs.items():
             if getattr(cog, "emoji", None) is None:
                 continue
-            cdata = {
-                "description": cog.description,
-                "commands": {}
-            }
+            cdata = {"description": cog.description, "commands": {}}
             for command in cog.get_commands():
                 cdata["commands"][command.name] = self.generate_command(command)
             data[cog_name] = cdata
@@ -143,14 +145,18 @@ class JSONHandler:
         return {
             "stats": await self.generate_stats(),
             "socket": await self.generate_socket(),
-            "cogs": self.generate_cogs()
+            "cogs": self.generate_cogs(),
         }
 
 
 class BackendAPI(commands.Cog):
     def __init__(self, bot: core.Bot):
         self.bot = bot
-        self.headers = {"Authorization": f"token {gist.token}", "User-Agent": "ppotatoo", "Accept": "application/vnd.github.v3+json"}
+        self.headers = {
+            "Authorization": f"token {gist.token}",
+            "User-Agent": "ppotatoo",
+            "Accept": "application/vnd.github.v3+json",
+        }
         self.gist_update.start()
 
         self.api = APIHandler(self.bot)
@@ -162,14 +168,7 @@ class BackendAPI(commands.Cog):
     async def gist_update(self):
         content = json.dumps(await self.api.json.generate_all(), indent=4)
         description = f"Last updated at {utcnow()}"
-        data = {
-            "description": description,
-            "files": {
-                "data.json": {
-                    "content": content
-                }
-            }
-        }
+        data = {"description": description, "files": {"data.json": {"content": content}}}
         url = "https://api.github.com/gists/" + gist.id
         async with self.bot.session.patch(url, json=data, headers=self.headers) as resp:
             log.info("Posted stats to gist.")
@@ -178,6 +177,6 @@ class BackendAPI(commands.Cog):
     async def wait(self):
         await self.bot.wait_until_ready()
 
-    
+
 def setup(bot: core.Bot):
     bot.add_cog(BackendAPI(bot))

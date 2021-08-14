@@ -1,18 +1,21 @@
 import re
 import time
-from datetime import datetime as dt, timezone
+from contextlib import suppress
+from datetime import datetime as dt
+from datetime import timezone
 
+import pendulum
 from dateutil.relativedelta import relativedelta
 from discord.ext import commands
 
 import core
+
 from .formats import human_join, plural
-import pendulum
-from contextlib import suppress
 
 __all__ = ("parse_time", "human_timedelta", "Timer")
 
-TIME_REGEX = re.compile("""
+TIME_REGEX = re.compile(
+    """
                     (?:(?P<years>[0-9])(?:years?|y))?             # e.g. 2y
                     (?:(?P<months>[0-9]{1,2})(?:months?|mo))?     # e.g. 2months
                     (?:(?P<weeks>[0-9]{1,4})(?:weeks?|w))?        # e.g. 10w
@@ -47,6 +50,7 @@ def parse_time(ctx: core.Context, arg: str, *, _add_now=False) -> dt:
 
     return parsed.replace(tzinfo=timezone.utc)
 
+
 def parse_reminder(ctx: core.Context, arg: str):
     time, _, reminder = arg.partition("|")
     if reminder == "":
@@ -55,13 +59,14 @@ def parse_reminder(ctx: core.Context, arg: str):
     final = _parse_time(time.strip(), start=ctx.message.created_at)
 
     if final is None:
-        raise commands.BadArgument("I was unable to discern a date from your input. Please make sure that you follow this format: `<time> | <thing>`")
+        raise commands.BadArgument(
+            "I was unable to discern a date from your input. Please make sure that you follow this format: `<time> | <thing>`"
+        )
 
     if pendulum.now() > final:
         raise commands.BadArgument("Time MUST be in the future.")
 
     return reminder.strip(), final
-
 
 
 def _parse_time(_input: str, *, start=None) -> dt:
@@ -83,8 +88,6 @@ def _parse_time(_input: str, *, start=None) -> dt:
             final = pendulum.parse(_input, strict=False, day_first=True, now=start or pendulum.now())
 
     return final
-
-
 
 
 def utcnow() -> dt:

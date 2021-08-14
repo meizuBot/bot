@@ -1,6 +1,7 @@
 import asyncio
 import logging
-from datetime import datetime as dt, timedelta
+from datetime import datetime as dt
+from datetime import timedelta
 from json import dumps, loads
 
 import asyncpg
@@ -121,7 +122,7 @@ class Reminders(commands.Cog):
     )
     async def remind(self, ctx: core.Context, *, thing: str):
         """A command to remind yourself of things
-        Times are in UTC. 
+        Times are in UTC.
         Make sure to split your input with a pipe (|) or I will be angry at you.
         """
         _thing, expires = parse_reminder(ctx, thing)
@@ -136,7 +137,9 @@ class Reminders(commands.Cog):
 
         delta = human_timedelta(expires, source=ctx.message.created_at)
         if _thing == "Nothing":
-            _thing += "\nDid you forget to split your reminder with a pipe (|)? If you did, cancel this reminder, and retry."
+            _thing += (
+                "\nDid you forget to split your reminder with a pipe (|)? If you did, cancel this reminder, and retry."
+            )
         await ctx.send(f"In {delta}: {_thing}")
 
     @commands.Cog.listener()

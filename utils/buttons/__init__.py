@@ -20,9 +20,7 @@ class StopButton(discord.ui.Button):
         row: Optional[int] = None,
     ):
         # we override some things so I don't have to pass in the same stuff every time
-        super().__init__(
-            style=style, label=label, disabled=disabled, custom_id=custom_id, emoji=emoji, row=row
-        )
+        super().__init__(style=style, label=label, disabled=disabled, custom_id=custom_id, emoji=emoji, row=row)
 
     async def callback(self, interaction: discord.Interaction):
         await interaction.message.delete()

@@ -15,6 +15,7 @@ __all__ = ("CustomBot",)
 
 log = logging.getLogger(__name__)
 
+
 def get_prefix(bot: "Bot", message: discord.Message) -> Union[List[str], str]:
     return commands.when_mentioned_or(*config.prefix)(bot, message)
 

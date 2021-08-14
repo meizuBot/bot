@@ -123,9 +123,7 @@ class BackgroundEvents(commands.Cog):
     async def on_member_update(self, before: discord.Member, after: discord.Member):
         if before.display_name != after.display_name and after.nick is not None:
             async with self._lock:
-                self._nicknames_cache.append(
-                    {"guild": after.guild.id, "member": after.id, "nickname": after.nick}
-                )
+                self._nicknames_cache.append({"guild": after.guild.id, "member": after.id, "nickname": after.nick})
 
     @commands.Cog.listener()
     async def on_user_update(self, before: discord.User, after: discord.User):

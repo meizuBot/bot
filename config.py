@@ -25,9 +25,7 @@ _keys = _config["keys"]
 osu = NamedTuple("Osu", [("client_id", int), ("client_secret", int)])(
     _keys["osu"]["client_id"], _keys["osu"]["client_secret"]
 )
-gist = NamedTuple("Gist", (["id", str], ["token", str]))(
-    _keys["gist"]["id"], _keys["gist"]["token"]
-)
+gist = NamedTuple("Gist", (["id", str], ["token", str]))(_keys["gist"]["id"], _keys["gist"]["token"])
 twitter_bearer_token = _keys["twitter_bearer_token"]
 finnhub_key = _keys["finnhub_key"]
 nasa_key = _keys["nasa_key"]
